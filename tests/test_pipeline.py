@@ -303,8 +303,9 @@ class PipelineTest(unittest.TestCase):
 
     def test_decrypting_counts_the_downloads_running(self):
         clip = make_clip(self.src / "p1.dcv", "abc00123", None)
-        with fetch.SPACE.claim(self.dir, lambda: int(50e9)), \
-                mock.patch.object(fetch.shutil, "disk_usage", return_value=mock.Mock(free=50e9 + fetch.SPACE_MARGIN + 1000)):
+        # The disk's free space is faked before the other download claims its share: the test machine may have less.
+        with mock.patch.object(fetch.shutil, "disk_usage", return_value=mock.Mock(free=50e9 + fetch.SPACE_MARGIN + 1000)), \
+                fetch.SPACE.claim(self.dir, lambda: int(50e9)):
             result, _ = self.run_video("abc00123", [clip])
         self.assertFalse(result.ok)
         self.assertIn("not enough free space to decrypt", result.message)
