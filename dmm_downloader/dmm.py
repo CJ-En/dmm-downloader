@@ -29,7 +29,7 @@ GRAPHQL_HEADERS = {
     "Referer": LIBRARY_URL,
 }
 # What a video's row (or the terminal) says when DMM no longer sees the session as logged in. The page also
-# recognises it by these words (web.py).
+# recognizes it by these words (web.py).
 LOGIN_AGAIN = "your DMM login has expired: log in again (Settings)"
 DMM_HOST_RE = re.compile(r"^(?:[a-z0-9-]+\.)*dmm\.(?:co\.jp|com)$")
 LOGIN_HOSTS = ("accounts.dmm.co.jp", "accounts.dmm.com")

@@ -37,8 +37,8 @@ browser, then try again. jav-it keeps its own sign-in in this folder (auth.json;
 Then, on the Download tab: paste content ids or DMM links (or pick videos in "My library"),
 then "Download". Up to 4 videos download at the same time (Settings), VR videos one at a time.
 
-Using a VPN (split tunnelling)
-------------------------------
+Using a VPN (split tunneling)
+-----------------------------
 DMM refuses its download links when they are asked from a VPN address, but its file servers
 don't, and the files can come much faster through a VPN. So the tool has two programs:
 
@@ -46,7 +46,7 @@ don't, and the files can come much faster through a VPN. So the tool has two pro
   It must NOT go through the VPN.
 - DMM-Fetch.exe: downloads only the files themselves. It may go through the VPN.
 
-In your VPN app's split tunnelling, either exclude DMM-Downloader.exe from the VPN, or let
+In your VPN app's split tunneling, either exclude DMM-Downloader.exe from the VPN, or let
 only DMM-Fetch.exe use the VPN. Examples for Proton VPN: Settings -> Split tunneling ->
 "Standard" mode: add DMM-Downloader.exe (excluded from the VPN); or "Inverse" mode: add
 DMM-Fetch.exe (only it uses the VPN). Then restart DMM-Downloader.exe.
@@ -64,3 +64,6 @@ Terminal use: DMM-Downloader.exe --help (e.g. DMM-Downloader.exe get sone00876).
 
 Windows may warn that the program is from an unknown publisher (it isn't signed):
 "More info" -> "Run anyway".
+With Windows' Smart App Control on, the program is blocked completely (there is no
+"Run anyway"). Then use the Python version of the tool instead: run.bat in its source code
+(its README says what it needs).

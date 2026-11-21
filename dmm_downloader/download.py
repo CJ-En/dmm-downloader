@@ -30,7 +30,7 @@ STREAM_HOST = "str.dmm.com"
 VR_STREAM_HOST = "wsd-r.dmm.co.jp"  # VR downloads: DMM's own domain, so it gets the login cookies
 # DMM refuses its download links from VPN addresses; its file servers don't.
 VPN_HINT = ("Is a VPN on? DMM refuses its download links from VPN addresses: keep this program off the VPN "
-            "(split tunnelling); only the file download (DMM-Fetch.exe) may go through it")
+            "(split tunneling); only the file download (DMM-Fetch.exe) may go through it")
 # DMM's VR download server answers 403 once one VR video was downloaded many times (seen in a test: about 20 download
 # starts of one video, then 403 for that video only, other VR videos still fine; how long it lasts is unknown, at
 # least 20 minutes). Waits before the next tries, in seconds: about 17 minutes in all, then the run moves on.
@@ -53,8 +53,8 @@ class NotInJapan(DownloadError):
     """The link is one DMM opens only in Japan (VR Channel) and the Japan route didn't reach Japan for DMM."""
 
 
-NOT_IN_JAPAN = ("DMM answered “not available in your region” to the Japan route: connect your VPN app to "
-                "Japan or check the Japan proxy (Japan route, Settings > Downloads)")
+NOT_IN_JAPAN = ("DMM answered “not available in your region” to the Japan route: check the Japan proxy, or set one "
+                "(Japan route, Settings > Downloads)")
 
 
 class LoginExpired(DownloadError):

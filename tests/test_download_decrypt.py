@@ -202,7 +202,7 @@ class FetchTest(unittest.TestCase):
         download.fetch(server.url, "ua", self.partial, None)  # 2D: checked by MediaInfo later instead
         self.assertEqual(self.partial.read_bytes(), DATA)
 
-    def test_vr_downloads_a_big_file_labelled_as_text(self):
+    def test_vr_downloads_a_big_file_labeled_as_text(self):
         # DMM's label for .wsdcf files isn't known: a label alone must not refuse a real (big) file, since every
         # refused VR try counts against DMM's per-video limit. Its first bytes are binary, so it is kept.
         server = self.serve(content_type="text/plain")
@@ -404,7 +404,7 @@ class DecryptTest(unittest.TestCase):
 
 @unittest.skipUnless(MEDIA_TOOLS and MEDIAINFO, "ffmpeg/mediainfo not installed")
 class DecryptVrTest(unittest.TestCase):
-    """jav-it's VR mode: `-t dmm-vr`, a shorter time limit, the licence message, and checks that suit VR files."""
+    """jav-it's VR mode: `-t dmm-vr`, a shorter time limit, the license message, and checks that suit VR files."""
 
     def setUp(self):
         self.dir = Path(tempfile.mkdtemp(prefix="dmm vr test "))
@@ -434,10 +434,10 @@ class DecryptVrTest(unittest.TestCase):
         self.assertEqual(decrypting.vr_timeout(0), 300)
         self.assertEqual(decrypting.vr_timeout(4_000_000_000), 1100)  # a 4 GB part: about 18 minutes
 
-    def test_the_licence_message_is_not_tried_again(self):
-        with self.assertRaises(decrypting.NeedsVrLicence) as caught:
-            self.run_mode("vr-licence")
-        self.assertIn("DMM VR Player's licence", str(caught.exception))
+    def test_the_license_message_is_not_tried_again(self):
+        with self.assertRaises(decrypting.NeedsVrLicense) as caught:
+            self.run_mode("vr-license")
+        self.assertIn("DMM VR Player's license", str(caught.exception))
         self.assertFalse(caught.exception.download_again)
         self.assertEqual(len(self.calls()), 1)
         self.assertFalse(self.out.exists())

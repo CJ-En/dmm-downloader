@@ -41,7 +41,7 @@ if ($running) { throw "DMM-Downloader is running from $app (Quit it on its page,
 & $py -m PyInstaller --noconfirm --clean --log-level WARN --distpath $stage --workpath (Join-Path $build "work") (Join-Path $PSScriptRoot "dmm-downloader.spec")
 if ($LASTEXITCODE -ne 0) { throw "PyInstaller failed" }
 
-# The license and the short guide (FFmpeg, MediaInfo, jav-it, VPN split tunnelling).
+# The license and the short guide (FFmpeg, MediaInfo, jav-it, VPN split tunneling).
 Copy-Item (Join-Path $root "LICENSE") (Join-Path $built "LICENSE.txt")
 Copy-Item (Join-Path $PSScriptRoot "README-windows.txt") (Join-Path $built "README.txt")
 

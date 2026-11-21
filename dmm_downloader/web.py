@@ -59,7 +59,7 @@ class Refused(Exception):
 
 
 def fetch_helper_command(settings: config.Settings) -> list[str] | None:
-    """The separate download program (VPN split tunnelling), or None: downloads then run in this program."""
+    """The separate download program (VPN split tunneling), or None: downloads then run in this program."""
     value = settings.fetch_helper.strip().strip('"')
     if value.lower() in ("off", "no", "none", "false"):
         return None
@@ -580,11 +580,16 @@ class App:
         if quality not in ("best", "pick"):
             raise Refused("Unknown quality choice.")
         with self.lock:
-            changed_source, s.source = source != s.source, source
+            # Only what was sent: another change answered at the same time keeps its value.
+            changed_source = "source" in data and source != s.source
+            if "source" in data:
+                s.source = source
             if "merge" in data:
                 s.merge = bool(data["merge"])
-            s.output_dir = folder
-            self.run_options["quality"] = quality
+            if "output_dir" in data:
+                s.output_dir = folder
+            if "quality" in data:
+                self.run_options["quality"] = quality
             for name in ("keep_dcv", "overwrite"):
                 if name in data:
                     self.run_options[name] = bool(data[name])
@@ -620,10 +625,14 @@ class App:
         if not valid_japan_route(texts.get("vrchannel_route", "")):
             raise Refused("Japan route: an http proxy like http://127.0.0.1:25345, or empty for this program's own "
                           "connection.")
-        route_changed = "vrchannel_route" in texts and texts["vrchannel_route"] != s.vrchannel_route
-        s.parallel, s.retries = parallel, retries
-        for name, value in texts.items():
-            setattr(s, name, value)
+        with self.lock:  # only what was sent: another save answered at the same time keeps its values
+            route_changed = "vrchannel_route" in texts and texts["vrchannel_route"] != s.vrchannel_route
+            if "parallel" in data:
+                s.parallel = parallel
+            if "retries" in data:
+                s.retries = retries
+            for name, value in texts.items():
+                setattr(s, name, value)
         config.save(s)
         self.find_tools()
         if route_changed:

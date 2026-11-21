@@ -134,16 +134,16 @@
             <div class="field"><span>Tries per download</span><input type="number" id="set-retries" min="1" max="20"></div>
           </div>
           <div class="note">VR videos always download one at a time (DMM allows only one), and jav-it decrypts one part at a time.</div>
-          <div class="field"><span>Download program for the files <small>(VPN split tunnelling)</small></span>
+          <div class="field"><span>Download program for the files <small>(VPN split tunneling)</small></span>
             <div class="state" id="fetchState"></div>
             <input type="text" class="mono" id="set-fetch" spellcheck="false" placeholder="empty = next to this program · off = never">
           </div>
-          <div class="note">DMM refuses its download links from VPN addresses, but its file servers don't (and can be much faster through a VPN). With <span class="mono" id="fetchName">DMM-Fetch.exe</span>, only the files themselves are downloaded by that separate program. In your VPN's split tunnelling, let only that program use the VPN (or keep DMM-Downloader off it): logging in, your library and the download links keep using your normal connection.</div>
+          <div class="note">DMM refuses its download links from VPN addresses, but its file servers don't (and can be much faster through a VPN). With <span class="mono" id="fetchName">DMM-Fetch.exe</span>, only the files themselves are downloaded by that separate program. In your VPN's split tunneling, let only that program use the VPN (or keep DMM-Downloader off it): logging in, your library and the download links keep using your normal connection.</div>
           <div class="field"><span>Japan route for the VR Channel <small>(DMM gives the VR Channel's downloads only in Japan)</small></span>
             <div class="state" id="jpState"></div>
-            <div class="inline"><input type="text" class="mono" id="set-jp" spellcheck="false" placeholder="empty = this program's own connection (a VPN app on Japan) · or a proxy, e.g. http://127.0.0.1:25345"><button type="button" class="btn small" id="jpCheck">Check</button></div>
+            <div class="inline"><input type="text" class="mono" id="set-jp" spellcheck="false" placeholder="a proxy in Japan, e.g. http://127.0.0.1:25345 · empty = this program's own connection"><button type="button" class="btn small" id="jpCheck">Check</button></div>
           </div>
-          <div class="note">Two ways: connect your VPN app to a server in Japan (the whole computer, or with DMM-Downloader in its split tunnelling) and leave this empty; or enter a proxy in Japan, e.g. wireproxy with a WireGuard config from a VPN with servers in Japan (see the README), so nothing else changes. Only the VR Channel's qualities, its download list and its download links use this route, as a normal Windows browser. The files themselves use your normal connection (or DMM-Fetch), and the proxy only when DMM's file server refuses them. Logging in, your library and Premium never use the proxy. “Check” asks DMM whether the route counts as Japan.</div>
+          <div class="note">Use a proxy in Japan, e.g. wireproxy with a WireGuard config from a VPN with servers in Japan (see the README). Only the VR Channel's qualities, its download list and its download links go through it, as a normal Windows browser; logging in, your library and Premium keep your normal connection. Left empty, this program's own connection is used: putting DMM-Downloader on a VPN app in Japan reaches the VR Channel too, but then Premium and library downloads fail, as DMM refuses its download links from VPN addresses. The files themselves use your normal connection (or DMM-Fetch), and the proxy only when DMM's file server refuses them. “Check” asks DMM whether the route counts as Japan.</div>
           <button type="button" class="btn start" id="dlSave">Save</button>
         </div>
       </div>
@@ -152,7 +152,7 @@
         <h2>jav-it</h2>
         <div class="body">
           <div class="tools" id="javitTools"></div>
-          <div class="field"><span>Email jav-it asks for to check your Patreon membership</span><input type="text" id="set-patreon" placeholder="empty = your DMM email" spellcheck="false"></div>
+          <div class="field"><span>Patreon email for jav-it <small>(only if it differs from your DMM email)</small></span><input type="text" id="set-patreon" placeholder="empty = your DMM email" spellcheck="false"></div>
           <div class="field"><span>jav-it program <small>(empty = next to this program, then PATH)</small></span><input type="text" class="mono" id="set-javit" spellcheck="false"></div>
           <div class="note">jav-it, DECRYPT.MOD (2D videos) and VR.MOD (VR videos) come from jav-it's developer (Patreon); put them next to this program. Without VR.MOD, VR videos are saved encrypted (<span class="mono">.wsdcf</span>).</div>
           <button type="button" class="btn start" id="javitSave">Save</button>

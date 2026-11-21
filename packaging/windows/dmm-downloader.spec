@@ -1,5 +1,5 @@
 # PyInstaller: DMM Downloader as a Windows program in one folder (build.ps1 runs it), with
-# DMM-Fetch.exe next to it: the file download on its own, for VPN split tunnelling.
+# DMM-Fetch.exe next to it: the file download on its own, for VPN split tunneling.
 from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_submodules

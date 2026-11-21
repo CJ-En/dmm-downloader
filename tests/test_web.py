@@ -1,7 +1,9 @@
 """The browser page's server: who may use it, and a queue from adding to saving (DMM and the pipeline faked)."""
 
 import dataclasses
+import json
 import shutil
+import subprocess
 import tempfile
 import threading
 import time
@@ -11,8 +13,11 @@ from unittest import mock
 
 import requests
 
-from dmm_downloader import config, credentials, links, pipeline, web
+from dmm_downloader import config, credentials, download, links, pipeline, web
 from dmm_downloader.dmm import DmmSession, LoginError
+
+NODE = shutil.which("node")
+PAGE = Path(__file__).resolve().with_name("page.cjs")  # runs the page's script with the states given
 
 
 def choice(cid, vr=False, source="premium"):
@@ -103,6 +108,18 @@ class WebTest(unittest.TestCase):
             time.sleep(0.05)
         self.fail(f"timed out; last state: {state['jobs']}")
 
+    def page(self, steps):
+        """What the page's queue shows after each step: a state from the tool, or {"open": id} (a click on a row).
+        tests/page.cjs runs the page's own script (app.js) in Node."""
+        if not NODE:
+            self.skipTest("Node.js not installed")
+        path = self.dir / "steps.json"
+        path.write_text(json.dumps([step if "open" in step else {"state": step} for step in steps]), encoding="utf-8")
+        ran = subprocess.run([NODE, str(PAGE), str(web.web_dir() / "app.js"), str(path)], capture_output=True,
+                             text=True, encoding="utf-8", timeout=60)
+        self.assertEqual(ran.returncode, 0, ran.stderr)
+        return json.loads(ran.stdout)
+
     def test_only_the_tools_browser_gets_in(self):
         self.assertEqual(self.get("/api/state").status_code, 403)
         self.assertEqual(self.http.get(f"{self.base}/?key=wrong").status_code, 403)
@@ -153,6 +170,43 @@ class WebTest(unittest.TestCase):
         self.assertEqual(jobs["abc00123"]["state"], "there")
         self.assertFalse(state["tools"]["vr"])
         self.assertIn("VR.MOD is not next to jav-it", state["tools"]["no_vr"])
+
+    def test_the_page_says_once_where_a_saved_video_is(self):
+        # The note said it twice: "Already in your folder (already in C:\...: abc00123.mkv)".
+        self.sign_in()
+        out = Path(self.settings.output_dir)
+        out.mkdir()
+        (out / "abc00123.mkv").write_bytes(b"x")
+        self.post("/api/add", {"text": "abc00123"})
+        there = self.wait_for(lambda s: s["jobs"][0]["state"] == "there")
+        closed, opened = self.page([there, {"open": there["jobs"][0]["id"]}])
+        self.assertNotIn('class="detail"', closed)  # an Already saved row opens on a click
+        folder = there["options"]["output_dir"]  # the folder's full name (TMP may be a short 8.3 name)
+        self.assertIn(f"Already in {folder}: abc00123.mkv. Tick “Download again videos already saved” to replace it.",
+                      opened)
+        self.assertEqual(opened.lower().count("already in "), 1)
+
+    def test_the_page_opens_limit_rows_and_keeps_their_steps(self):
+        # "DMM limit: later" rows behave like the other failures (Failed, Not available): they open by themselves, and
+        # their steps stay listed once finished, so the 2, 5 and 10 minute waits can still be read.
+        self.sign_in()
+        self.post("/api/add", {"text": "sivr00457 none00001"})
+        looked_up = self.wait_for(lambda s: all(j["state"] in ("ready", "bad") for j in s["jobs"]))
+
+        def limited(cid, session, login, tools, opts, report, choice=None):
+            for wait in (2, 5, 10):
+                report.step(f"part 1/2: {download.VR_LIMIT}; {download.VR_VPN}); waiting {wait} min before trying again")
+            return pipeline.Result(cid, False, f"{cid}: part 1/2: {download.VR_LIMIT}); run again later, e.g. tomorrow")
+
+        with mock.patch.object(pipeline, "process", side_effect=limited):
+            self.post("/api/start")
+            limit = self.wait_for(lambda s: not s["running"] and s["jobs"][0]["state"] == "limit")
+        before, after = self.page([looked_up, limit])
+        self.assertEqual(before.count('class="detail"'), 1)  # the Not available row, not the ready one
+        self.assertEqual(after.count('class="detail"'), 2)
+        self.assertIn("DMM refuses more downloads of this VR video for now.", after)  # opened by itself
+        for wait in (2, 5, 10):
+            self.assertIn(f"waiting {wait} min before trying again</li>", after)
 
     def test_vr_is_decrypted_with_vr_mod_and_saved_files_are_used(self):
         (self.dir / "VR.MOD").write_text("")
@@ -302,6 +356,38 @@ class WebTest(unittest.TestCase):
         self.post("/api/options", {"source": "vrchannel"})
         self.assertEqual(config.load(config.config_path()).source, "vrchannel")
         self.post("/api/options", {"source": "nowhere"}, expect=409)
+
+    def test_settings_changed_quickly_are_all_saved(self):
+        # The page sends each change at once and the server answers requests in parallel: two settings changed
+        # quickly were saved at the same time, one failed with "unexpected error: [WinError 5] Access is denied"
+        # (config.tmp -> config.ini) and its value wasn't saved.
+        self.sign_in()
+        for merge, source, retries, parallel in ((False, "library", 7, 2), (True, "premium", 3, 6), (False, "auto", 9, 1)):
+            changes = [("/api/options", {"merge": merge}), ("/api/options", {"keep_dcv": merge}),
+                       ("/api/options", {"source": source}), ("/api/settings", {"retries": retries}),
+                       ("/api/settings", {"parallel": parallel}), ("/api/settings", {"javit_email": f"{source}@example.com"})]
+            answers, start = [], threading.Barrier(len(changes))
+
+            def send(path, body):
+                with requests.Session() as http:
+                    http.cookies.update(self.http.cookies)
+                    start.wait(10)
+                    answer = http.post(f"{self.base}{path}", json=body, headers={"X-DMM-Downloader": "1"})
+                    answers.append((body, answer.status_code, answer.text))
+
+            threads = [threading.Thread(target=send, args=change) for change in changes]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join(30)
+            self.assertEqual([(body, status) for body, status, _ in answers if status != 200], [], answers)
+            saved = config.load(config.config_path())
+            wanted = (merge, source, retries, parallel, f"{source}@example.com")
+            self.assertEqual((saved.merge, saved.source, saved.retries, saved.parallel, saved.javit_email), wanted)
+            s = self.server.app.settings
+            self.assertEqual((s.merge, s.source, s.retries, s.parallel, s.javit_email), wanted)
+            self.assertEqual(self.server.app.run_options["keep_dcv"], merge)
+            self.assertEqual(sorted(p.name for p in config.config_dir().iterdir() if p.suffix == ".tmp"), [])
 
     def test_the_japan_route_is_saved_and_checked(self):
         self.sign_in()

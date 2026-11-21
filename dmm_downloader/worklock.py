@@ -19,7 +19,7 @@ LOCK_NAME = "lock"
 NEW_LOCK = 10.0  # seconds: an unreadable lock this new is being written right now, not left behind
 
 _guard = threading.Lock()
-_held: set[str] = set()  # this program's locks (normalised paths)
+_held: set[str] = set()  # this program's locks (normalized paths)
 
 
 class Busy(Exception):

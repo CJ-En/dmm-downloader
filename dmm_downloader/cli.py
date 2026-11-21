@@ -160,7 +160,7 @@ def japan_text(reaches: bool | None, why: str) -> str:
     if reaches:
         return "reaches Japan"
     if reaches is False:
-        return f"not in Japan ({why}); set vrchannel_route ({config.config_path()}) or connect a VPN app to Japan"
+        return f"not in Japan ({why}); set vrchannel_route ({config.config_path()}) to a proxy in Japan"
     return f"couldn't be checked ({why})"
 
 

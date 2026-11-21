@@ -98,7 +98,7 @@ if mode == "hang":
 if mode == "connection":
     print("[ !! ] No internet connection", flush=True)
     sys.exit(3)
-if mode == "vr-licence":  # what older versions said about a VR file DMM VR Player hadn't played
+if mode == "vr-license":  # what older versions said about a VR file DMM VR Player hadn't played
     print("Open Error: the user has not been authenticated", flush=True)
     sys.exit(1)
 with open(here / "kinds.log", "a", encoding="utf-8") as f:

@@ -58,8 +58,8 @@ SOURCE_NAMES = {"premium": "DMM Premium", "vrchannel": "DMM VR Channel", "librar
 NOT_IN_VRCHANNEL = "not in DMM's VR Channel"
 NO_VRCHANNEL = "your DMM account has no VR Channel subscription (DMM's monthly VR plan)"
 # DMM gives the VR Channel's qualities, download list and links only to a normal browser in Japan (the Japan route).
-NEEDS_JAPAN = ("in DMM's VR Channel, but DMM gives its downloads only in Japan: connect a VPN app to Japan or set a "
-               "Japan proxy (Japan route, Settings > Downloads)")
+NEEDS_JAPAN = ("in DMM's VR Channel, but DMM gives its downloads only in Japan: set a Japan proxy (Japan route, "
+               "Settings > Downloads)")
 # A subscriber's VR Channel page asks for its download list here (a POST, "download-vr", with the page's qualities);
 # the address is read from the page.
 VRCHANNEL_PANEL_RE = re.compile(r"[\"'](/monthly/vr/-/detail/ajax-panel/=/cid=[a-z0-9_]+/)[\"']")

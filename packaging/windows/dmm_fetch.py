@@ -1,5 +1,5 @@
 """DMM-Fetch.exe: only the file download from DMM's file servers, started by DMM-Downloader.exe
-(its own program so a VPN's split tunnelling can send just this step through the VPN)."""
+(its own program so a VPN's split tunneling can send just this step through the VPN)."""
 
 import sys
 

@@ -94,7 +94,7 @@ class Options:
     retries: int = 5
     javit_email: str = ""
     retry_delay: float = 10.0
-    fetch_helper: list[str] | None = None  # the separate download program for the file itself (VPN split tunnelling)
+    fetch_helper: list[str] | None = None  # the separate download program for the file itself (VPN split tunneling)
     slots: Slots | None = None  # shared limits when several videos run at once
 
     def download_slot(self, vr: bool = False):
@@ -601,7 +601,7 @@ def _vr_decrypted(cid: str, choice: links.Choice, work: Path, state: dict, sessi
                                        retry_delay=opts.retry_delay, vr=True)
                 break
             except decrypting.DecryptError as exc:
-                if not exc.download_again:  # jav-it itself failed (licence, time limit, ...): no new download
+                if not exc.download_again:  # jav-it itself failed (license, time limit, ...): no new download
                     raise VideoFailed(f"{label}: {exc}. {where}") from exc
                 if round_ == 2:
                     raise VideoFailed(f"{label}: {exc}, also after downloading it again (jav-it or DMM's file may be at "

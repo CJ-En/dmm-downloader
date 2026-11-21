@@ -150,7 +150,7 @@
     }
     if (/in DMM's VR Channel from /.test(message)) return "DMM's VR Channel offers it from that day on: look it up again then.";
     if (/gives its downloads only in Japan|not available in your region/.test(message)) {
-      return "Connect your VPN app to a server in Japan, or enter a proxy in Japan in Settings, Downloads (“Check” tells whether DMM counts it as Japan), then “Look up again”.";
+      return "Enter a proxy in Japan in Settings, Downloads (“Check” tells whether DMM counts it as Japan), then “Look up again”.";
     }
     if (/through the Japan proxy|Japan route/.test(message)) return "Settings, Downloads: is the Japan proxy running and connected? “Check” tells, then “Look up again”.";
     if (/not in your DMM library/.test(message)) {
@@ -211,7 +211,8 @@
       html += `<div class="box bad"><b>${esc(cap(job.message || "Failed."))}</b>${h ? `<span>${h}</span>` : ""}</div>`;
     }
     if (st === "limit") html += `<div class="box ask"><b>DMM refuses more downloads of this VR video for now.</b><span>DMM limits how often one VR video can be downloaded (other videos still work). The parts already downloaded are kept: start it again later (it seems to reset each day) and only the missing parts are downloaded. A VPN on DMM-Downloader gets the same refusal: keep it off the VPN (only DMM-Fetch may use it).</span></div>`;
-    if (st === "there") html += `<div class="note">Already in your folder (${esc(job.message)}). Tick “Download again videos already saved” to replace it.</div>`;
+    // The tool's message says where: "already in <folder>: abc00123.mkv" (or "already downloaded" after a run).
+    if (st === "there") html += `<div class="note">${esc(cap(job.message || "already saved").replace(/\.?$/, "."))} Tick “Download again videos already saved” to replace it.</div>`;
     const saved = job.saved_encrypted || [];
     if (saved.length && ["ready", "waiting"].includes(job.state)) {
       html += `<div class="box vr"><b>${saved.length >= job.parts ? "The encrypted files saved earlier are decrypted, nothing is downloaded." : `The encrypted files saved earlier are decrypted; only the other ${job.parts - saved.length} part${job.parts - saved.length === 1 ? " is" : "s are"} downloaded.`}</b><span class="files">${saved.map(n => `<span>${esc(n)}</span>`).join("")}</span><span>They are removed after a checked decrypt unless “Keep the encrypted downloads” is ticked.</span></div>`;
@@ -224,7 +225,7 @@
     if (st === "vrdone") html += `<div class="box vr">Saved encrypted (.wsdcf), as DMM sends VR: watch it in DMM VR Player. With VR.MOD next to jav-it, VR videos are decrypted (the note below says what was missing).</div>`;
     const warnings = job.warnings || [];
     if (warnings.length) html += warnings.map(w => `<div class="warn">⚠ ${esc(w)}</div>`).join("");
-    if (job.steps.length && ["working", "done", "failed"].includes(job.state)) {
+    if (job.steps.length && ["working", "done", "failed", "limit"].includes(job.state)) { // limit: the waits stay listed
       html += `<ul class="steps">${job.steps.map((s, i) => `<li class="${job.state === "working" && i === job.steps.length - 1 ? "now" : ""}">${esc(s)}</li>`).join("")}</ul>`;
     }
     const buttons = [];
@@ -239,7 +240,7 @@
     const busy = q.contains(document.activeElement) && document.activeElement.tagName === "SELECT";
     for (const job of state.jobs) {
       const before = seen.get(job.id);
-      if (before !== job.state && ["bad", "failed"].includes(job.state)) open.add(job.id);
+      if (before !== job.state && ["bad", "failed", "limit"].includes(job.state)) open.add(job.id);
       // "I pick it for each video": the quality menu is inside the row, so a row opens once it is looked up.
       if (before !== job.state && job.state === "ready" && state.options.quality === "pick") open.add(job.id);
       seen.set(job.id, job.state);
@@ -352,7 +353,7 @@
       return `<span class="ok-t">reaches Japan</span> <span class="sub">${j.route === "proxy" ? `through ${esc(j.shown)}` : "this program's own connection (your VPN app?)"}; DMM shows the VR Channel${when}</span>`;
     }
     if (j.state === "region") {
-      return `<span class="bad-t">not in Japan</span> <span class="sub">DMM answered “not available in your region”${when}: connect your VPN app to Japan, or enter a proxy in Japan</span>`;
+      return `<span class="bad-t">not in Japan</span> <span class="sub">DMM answered “not available in your region”${when}: use a proxy in Japan</span>`;
     }
     if (j.state === "error") return `<span class="bad-t">couldn't be checked</span> <span class="sub">${esc(j.message)}${when}</span>`;
     return `<span class="sub">not checked yet: “Check” asks DMM whether ${j.route === "proxy" ? `the proxy ${esc(j.shown)}` : "this program's own connection"} counts as Japan</span>`;

@@ -551,11 +551,11 @@ class VrDecryptTest(unittest.TestCase):
         self.assertTrue(result.ok, result.message)
         self.assertEqual(self.names(), ["sivr00123.mp4"])
 
-    def test_licence_needed_fails_at_once_and_keeps_the_download(self):
-        with mock.patch.dict(os.environ, {"FAKE_JAVIT_MODE": "vr-licence"}):
+    def test_license_needed_fails_at_once_and_keeps_the_download(self):
+        with mock.patch.dict(os.environ, {"FAKE_JAVIT_MODE": "vr-license"}):
             result, dl, _ = self.run_vr([self.clip("p1.wsdcf")])
         self.assertFalse(result.ok)
-        self.assertIn("DMM VR Player's licence", result.message)
+        self.assertIn("DMM VR Player's license", result.message)
         self.assertIn("encrypted parts are kept", result.message)
         self.assertEqual((dl.call_count, len(self.calls())), (1, 1))  # not tried again, not downloaded again
         self.assertTrue((self.out / pipeline.WORK_FOLDER / "sivr00123" / "part1.wsdcf").exists())

@@ -26,9 +26,10 @@ log = logging.getLogger(__name__)
 SUCCESS_BANNER = "[ ok ] decryption complete!"
 CONNECTION_ERROR = "no internet connection"
 LICENSE_MARKERS = ("patreon email address:", "please validate your identity", "validate your identity")
-# Older jav-it versions decrypted VR only with the licence DMM VR Player keeps after playing a file once, and said
-# so ("... the user has not been authenticated", "... correct licence information ..."): trying again won't help.
-VR_LICENCE_MARKERS = ("licence information", "license information", "has not been authenticated")
+# Older jav-it versions decrypted VR only with the license DMM VR Player keeps after playing a file once, and said
+# so ("... the user has not been authenticated", "... correct licence information ...", jav-it's own spelling):
+# trying again won't help.
+VR_LICENSE_MARKERS = ("licence information", "license information", "has not been authenticated")
 DURATION_TOLERANCE = 30.0
 TIMEOUT = 7200
 # VR: a decrypt took seconds (511 MB in 7 s), so a hang shouldn't block for hours: 5 minutes plus 1 second per 5 MB.
@@ -104,8 +105,8 @@ class DecryptError(Exception):
         return self.corrupt_source or self.bad_output
 
 
-class NeedsVrLicence(DecryptError):
-    """jav-it wants DMM VR Player's licence for this VR file: trying again (or downloading again) won't help."""
+class NeedsVrLicense(DecryptError):
+    """jav-it wants DMM VR Player's license for this VR file: trying again (or downloading again) won't help."""
 
 
 def required_ratio(size: int) -> float:
@@ -270,8 +271,8 @@ def decrypt(
                 old.unlink(missing_ok=True)
             return out
         out.unlink(missing_ok=True)
-        if vr and any(marker in lower for marker in VR_LICENCE_MARKERS):
-            raise NeedsVrLicence(f"jav-it says it needs DMM VR Player's licence to decrypt {dcv.name}: this jav-it "
+        if vr and any(marker in lower for marker in VR_LICENSE_MARKERS):
+            raise NeedsVrLicense(f"jav-it says it needs DMM VR Player's license to decrypt {dcv.name}: this jav-it "
                                  f"can't decrypt VR without the player (newer versions can: update jav-it and "
                                  f"VR.MOD). Its output is in {logs}")
         if any(marker in lower for marker in LICENSE_MARKERS):

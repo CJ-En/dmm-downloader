@@ -22,7 +22,7 @@ after its content id (`abc00123.mkv`), ready to watch.
   4K VP9 parts stay separate: `abc00123-pt1.mkv`, `abc00123-pt2.mkv`.
 - **Browser page** (the default): a queue of videos, your DMM library to pick from, settings and the
   log, on your own computer only. Up to 4 videos at the same time (VR one at a time).
-- **VPN split tunnelling**: the file downloads can run in a separate program that alone goes through
+- **VPN split tunneling**: the file downloads can run in a separate program that alone goes through
   a VPN, see [Using a VPN](#using-a-vpn).
 - **Windows program**: `DMM-Downloader.exe`, no Python needed, see [Windows program](#windows-program).
 
@@ -155,7 +155,7 @@ keep the id you typed.
 - A part whose decrypted file fails the checks is downloaded again, but only once per video (each
   VR download counts toward DMM's limit, below).
 - jav-it gets 5 minutes plus 1 second per 5 MB of the part; then it is stopped and the video fails.
-- If jav-it answers that it needs DMM VR Player's licence (older jav-it versions did), the video
+- If jav-it answers that it needs DMM VR Player's license (older jav-it versions did), the video
   fails at once with that message; the encrypted parts are kept for the next run.
 - "Keep the encrypted downloads" (`--keep-dcv`) keeps `sivr00457.wsdcf` / `-pt1.wsdcf`, ... next to
   the result.
@@ -206,11 +206,8 @@ uses for everything else (Googlebot) it shows the page without them. So only the
 route through Japan, set under Settings -> Downloads, "Japan route for the VR Channel" (the setting
 `vrchannel_route`). Logging in, your library and Premium never use it.
 
-- **A VPN app connected to a server in Japan**: leave the setting empty. The tool then uses its own
-  connection, so the VPN app must carry DMM-Downloader (the whole computer, or DMM-Downloader in its
-  split tunnelling).
-- **A proxy in Japan**: enter its address, such as `http://127.0.0.1:25345`. Nothing else on the
-  computer changes. One way, with a VPN that gives WireGuard configs for its servers:
+- **A proxy in Japan** (the way to use): enter its address, such as `http://127.0.0.1:25345`. Nothing
+  else on the computer changes. One way, with a VPN that gives WireGuard configs for its servers:
   1. Download your VPN's WireGuard config for one server in Japan. Its `Endpoint` must be that same
      server: a general name that points to several servers makes the server ignore the connection
      (in wireproxy's window, `Handshake did not complete` again and again).
@@ -227,6 +224,10 @@ route through Japan, set under Settings -> Downloads, "Japan route for the VR Ch
 
   Only http proxies work. A user name and password in the address (`http://user:pass@host:port`) are
   kept in the settings file as written (and hidden in the log and on the page's messages).
+- **A VPN app connected to a server in Japan**, with the setting empty: the tool then uses its own
+  connection, so the VPN app must carry DMM-Downloader. The VR Channel works that way, but Premium and
+  library downloads fail, as DMM refuses its download links from VPN addresses (see
+  [Using a VPN](#using-a-vpn)): use a proxy instead.
 
 "Check" (and `run.bat doctor`) asks DMM, as a normal Windows browser through the route, for the VR
 Channel's start page: `reaches Japan` or `not in Japan`. It doesn't log in and downloads nothing.
@@ -247,14 +248,14 @@ in its own program, `DMM-Fetch.exe` (next to `DMM-Downloader.exe` in the Windows
 Logging in, the library and the download links stay in the main program; the file server address
 reaches the separate program through a pipe, never on its command line.
 
-In your VPN app's split tunnelling, exclude `DMM-Downloader.exe` from the VPN, or let only
+In your VPN app's split tunneling, exclude `DMM-Downloader.exe` from the VPN, or let only
 `DMM-Fetch.exe` use it (Proton VPN: Settings -> Split tunneling, "Standard" or "Inverse" mode).
 Without a VPN nothing needs to be set.
 
 The page shows which program downloads the files (Settings -> Downloads). The setting `fetch_helper`:
 empty = `DMM-Fetch.exe` next to the program when it is there, `off` = always in the main program,
 or the path of the program. From source, `module` runs it as `python -m dmm_downloader.fetch`; that
-is the same `python.exe`, so split tunnelling can't tell the two apart: use the Windows program for it.
+is the same `python.exe`, so split tunneling can't tell the two apart: use the Windows program for it.
 
 ## Settings
 
@@ -265,8 +266,9 @@ is the same `python.exe`, so split tunnelling can't tell the two apart: use the 
 It holds the default output folder, the program locations, the source, merging, retries, how many
 videos download at the same time (`parallel`, 1-8, default 4; VR always one), the download program
 (`fetch_helper`, see [Using a VPN](#using-a-vpn)), the Japan route for the VR Channel
-(`vrchannel_route`, see [VR Channel: the Japan route](#vr-channel-the-japan-route)) and the email jav-it asks for when it validates your
-Patreon membership (`javit_email`, default: your DMM email). The page's Settings tab changes them too.
+(`vrchannel_route`, see [VR Channel: the Japan route](#vr-channel-the-japan-route)) and your Patreon
+email for jav-it, only if it differs from your DMM email (`javit_email`). The page's Settings tab changes
+them too.
 
 ## Windows program
 
@@ -281,7 +283,8 @@ or its modules (users get them themselves) and refuses to finish when a file nam
 was built on (user name, folders, git account: `packaging\windows\check_dist.py`), or holds a word
 you list in `packaging\windows\refused-words.txt` (one per line, not in git) or in
 `DMM_DOWNLOADER_REFUSE` (separated by `;`). The program isn't signed: Windows SmartScreen warns
-("More info" -> "Run anyway"), Smart App Control blocks it.
+("More info" -> "Run anyway"). With Windows' Smart App Control on, the program is blocked completely
+(there is no "Run anyway"): use the Python version then (`run.bat`, see [Start](#start)).
 
 The programs' icon, `packaging\windows\dmm-downloader.ico`, is the page's mark (a download sign on a
 rounded tile, also `favicon.svg`), drawn by `python packaging\windows\make_icon.py` with Python alone.
@@ -295,13 +298,13 @@ rounded tile, also `favicon.svg`), drawn by `python packaging\windows\make_icon.
 | `your DMM account has no VR Channel subscription` | The VR video is in DMM's VR Channel, but this account has no VR Channel plan. Subscribe on DMM, then look it up again, or buy the video (your library). |
 | `not in DMM's VR Channel` | "VR Channel only" was chosen and the channel doesn't have this id. Choose "Premium, VR Channel, then my library" (`--source auto`) to look further. |
 | `in DMM's VR Channel from <date> (not yet)` | The channel offers it from that day on: try again then. |
-| `in DMM's VR Channel, but DMM gives its downloads only in Japan` | The Japan route doesn't reach Japan for DMM: connect your VPN app to Japan or set a Japan proxy, then look it up again. See [VR Channel: the Japan route](#vr-channel-the-japan-route). |
+| `in DMM's VR Channel, but DMM gives its downloads only in Japan` | The Japan route doesn't reach Japan for DMM: set a Japan proxy (or check the one set), then look it up again. See [VR Channel: the Japan route](#vr-channel-the-japan-route). |
 | `no answer through the Japan proxy (...): is it running and connected?` | Start the proxy (wireproxy: its window must stay open and show `Received handshake response`), then try again. |
 | `DMM answered "not available in your region" to the Japan route` | The route stopped counting as Japan between the lookup and the download: check it ("Check"), then start the video again. |
 | `... in your DMM library for streaming only` | You bought it as a streaming-only (or rental) purchase: DMM offers no download. |
 | `jav-it asks for your Patreon email` | Set `javit_email` in the settings file. |
 | `jav-it could not reach its server` | jav-it checks your membership online; try again later. |
-| `jav-it says it needs DMM VR Player's licence` | This jav-it can't decrypt VR without the player: update jav-it and VR.MOD. The encrypted parts are kept; start the video again afterwards. Or remove VR.MOD to have VR videos saved encrypted. |
+| `jav-it says it needs DMM VR Player's license` | This jav-it can't decrypt VR without the player: update jav-it and VR.MOD. The encrypted parts are kept; start the video again afterwards. Or remove VR.MOD to have VR videos saved encrypted. |
 | `jav-it took longer than ... and was stopped` | jav-it hung. Start the video again (nothing is downloaded again); the jav-it output named in the message may say why. |
 | `the decrypted file is too small` / `damaged` | The tool already downloaded that part once more and decrypted it again. `... also after downloading it again`: try again later (jav-it or DMM's file may be at fault). |
 | `DMM's download server answered HTTP 404. Is a VPN on?` | The main program goes through a VPN: see [Using a VPN](#using-a-vpn). |
@@ -314,6 +317,20 @@ rounded tile, also `favicon.svg`), drawn by `python packaging\windows\make_icon.
   
   Passwords, cookies and download links are removed from it.
 - **Exit codes**: `0` all done, `1` some videos failed, `2` setup problem, `130` stopped.
+
+## Changes in 1.0.1
+
+- Settings changed quickly one after the other are all saved. Before, one of them could fail with
+  `unexpected error: [WinError 5] Access is denied` and keep its old value.
+- "DMM limit: later" rows open by themselves, like Failed and Not available rows, and keep their
+  steps once finished, so the 2, 5 and 10 minute waits stay visible.
+- The Japan route advice no longer contradicts the VPN advice: use a proxy in Japan. A VPN app in
+  Japan on DMM-Downloader makes Premium and library downloads fail.
+- Clearer texts: the jav-it Patreon email field says it is needed only when it differs from your DMM
+  email, and the Already saved note no longer says it twice. US spelling throughout ("license",
+  "split tunneling").
+- The Windows program is blocked completely while Windows' Smart App Control is on: the READMEs now
+  say so, and to use the Python version (`run.bat`) then.
 
 ## Development
 

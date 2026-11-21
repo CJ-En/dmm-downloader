@@ -1,7 +1,7 @@
 """The last download step on its own: one file from DMM's file server (stcN.dmm.com, VR: wsd-cN.dmm.com).
 
 It runs inside the tool, or as its own program (DMM-Fetch.exe in the Windows download, or
-`python -m dmm_downloader.fetch`), so a VPN's split tunnelling can send only this step through the VPN
+`python -m dmm_downloader.fetch`), so a VPN's split tunneling can send only this step through the VPN
 (DMM refuses its link steps from VPN addresses, its file servers don't, and they were about five times faster
 through a VPN in a test). The program gets its job as one JSON line on stdin
 ({"url", "path", "user_agent"}: the address carries a key, so never on the command line) and answers JSON lines
@@ -182,7 +182,7 @@ def _total_from(response: requests.Response, offset: int) -> int | None:
 def fetch_file(cdn_url: str, user_agent: str, partial: Path, progress: Progress | None = None,
                binary_only: bool = False, proxies: dict | None = None) -> int:
     """Download into `partial`, continuing it when possible. Returns the total size. `binary_only` (VR): an answer
-    labelled as a page or text is refused before anything is written. `proxies`: through the Japan route's proxy."""
+    labeled as a page or text is refused before anything is written. `proxies`: through the Japan route's proxy."""
     if not file_server(cdn_url):
         raise DownloadError("not a DMM file server address; stopped")
     offset = partial.stat().st_size if partial.exists() else 0
@@ -213,7 +213,7 @@ def fetch_file(cdn_url: str, user_agent: str, partial: Path, progress: Progress 
             total = _total_from(response, offset)
             content_type = response.headers.get("Content-Type", "")
             if binary_only and page_type(content_type):
-                # A page is small. A big answer labelled as text is downloaded anyway (DMM's labels for .wsdcf files
+                # A page is small. A big answer labeled as text is downloaded anyway (DMM's labels for .wsdcf files
                 # aren't known, and every refused try counts against DMM's per-video limit); the check of its first
                 # bytes after the download still refuses a page.
                 if total is None or total < PAGE_MAX_BYTES:

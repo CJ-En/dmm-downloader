@@ -5,6 +5,9 @@ from __future__ import annotations
 import configparser
 import os
 import sys
+import tempfile
+import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,6 +16,10 @@ from .dmm import valid_japan_route
 APP = "DMMDownloader"
 SLUG = "dmm-downloader"
 SECTION = "settings"
+# The page's server answers requests in parallel, so saves can come at the same time: one at a time here.
+_save_lock = threading.Lock()
+# Windows: an antivirus or the search indexer may hold the file a moment ("Access is denied"): tries before giving up.
+REPLACE_TRIES = 5
 
 TEMPLATE = """\
 # dmm-downloader settings. Empty values use the default. Command-line options win over these.
@@ -26,7 +33,7 @@ output_dir =
 # next to it too, VR videos are decrypted (without it they are saved encrypted, .wsdcf).
 jav_it =
 
-# Email jav-it asks for when it validates your Patreon membership (default: your DMM login email).
+# Patreon email for jav-it, only if it differs from your DMM email (default: your DMM login email).
 javit_email =
 
 # mediainfo, ffmpeg and ffprobe (default: next to dmm-downloader, then PATH).
@@ -46,17 +53,18 @@ retries = 5
 # Videos downloaded at the same time on the browser page (VR videos: always one at a time).
 parallel = 4
 
-# The separate program that downloads the files themselves, so a VPN can carry only that step (split tunnelling):
+# The separate program that downloads the files themselves, so a VPN can carry only that step (split tunneling):
 # empty = DMM-Fetch.exe next to the program when it is there; "off" = never; or its path.
 fetch_helper =
 
 # Browser name sent to DMM (default: Googlebot, which DMM serves outside Japan).
 user_agent =
 
-# Japan route for the VR Channel: DMM gives the VR Channel's downloads only to a browser in Japan. Empty = this
-# program's own connection (a VPN app connected to a server in Japan, or a computer in Japan); or an http proxy in
-# Japan, e.g. http://127.0.0.1:25345 (wireproxy with a WireGuard config of a VPN server in Japan). Only the VR
-# Channel's download list and links use it (and its files when DMM's file server refuses them elsewhere).
+# Japan route for the VR Channel: DMM gives the VR Channel's downloads only to a browser in Japan. Use an http proxy
+# in Japan, e.g. http://127.0.0.1:25345 (wireproxy with a WireGuard config of a VPN server in Japan): only the VR
+# Channel's download list and links use it (and its files when DMM's file server refuses them elsewhere). Empty =
+# this program's own connection (a computer in Japan, or a VPN app in Japan, but on a VPN Premium and library
+# downloads fail: DMM refuses its download links from VPN addresses).
 vrchannel_route =
 """
 
@@ -152,22 +160,47 @@ def load(path: Path | None = None) -> Settings:
 def save(settings: Settings, path: Path | None = None) -> Path:
     """Write the settings into the settings file, keeping its comments (the page's Settings tab uses this)."""
     path = path or ensure_config_file()
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        lines = TEMPLATE.splitlines()
-    values = {key: ("yes" if value else "no") if isinstance(value, bool) else str(value) for key, value in vars(settings).items()}
-    written = set()
-    for index, line in enumerate(lines):
-        key = line.split("=", 1)[0].strip()
-        if "=" in line and not line.lstrip().startswith(("#", ";")) and key in values:
-            lines[index] = f"{key} = {values[key]}"
-            written.add(key)
-    if f"[{SECTION}]" not in (line.strip() for line in lines):
-        lines.append(f"[{SECTION}]")
-    lines += [f"{key} = {value}" for key, value in values.items() if key not in written]
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    os.replace(tmp, path)
+    with _save_lock:  # the values are read inside it too, so the last save writes the newest ones
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            lines = TEMPLATE.splitlines()
+        values = {key: ("yes" if value else "no") if isinstance(value, bool) else str(value)
+                  for key, value in vars(settings).items()}
+        written = set()
+        for index, line in enumerate(lines):
+            key = line.split("=", 1)[0].strip()
+            if "=" in line and not line.lstrip().startswith(("#", ";")) and key in values:
+                lines[index] = f"{key} = {values[key]}"
+                written.add(key)
+        if f"[{SECTION}]" not in (line.strip() for line in lines):
+            lines.append(f"[{SECTION}]")
+        lines += [f"{key} = {value}" for key, value in values.items() if key not in written]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        # Each save has its own temporary file in the same folder (a fixed name was written by two saves at once),
+        # removed when the save fails.
+        handle, name = tempfile.mkstemp(prefix=f"{path.stem}.", suffix=".tmp", dir=path.parent)
+        tmp = Path(name)
+        try:
+            with os.fdopen(handle, "w", encoding="utf-8") as file:
+                file.write("\n".join(lines) + "\n")
+            _replace(tmp, path)
+        except BaseException:
+            try:
+                tmp.unlink(missing_ok=True)
+            except OSError:
+                pass
+            raise
     return path
+
+
+def _replace(source: Path, target: Path) -> None:
+    """os.replace, tried again a few times while Windows says the file is busy."""
+    for attempt in range(1, REPLACE_TRIES + 1):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError:
+            if attempt == REPLACE_TRIES:
+                raise
+            time.sleep(0.05 * attempt)
