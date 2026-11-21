@@ -1,0 +1,99 @@
+{
+ "creatingLibrary": {
+  "name": "MediaInfoLib",
+  "version": "25.04",
+  "url": "https://mediaarea.net/MediaInfo"
+ },
+ "media": {
+  "track": [
+   {
+    "@type": "General",
+    "UniqueID": "130000000000000000000000000000000000003",
+    "VideoCount": "1",
+    "AudioCount": "1",
+    "FileExtension": "mkv",
+    "Format": "Matroska",
+    "Format_Version": "4",
+    "FileSize": "6300000000",
+    "Duration": "5400.000",
+    "OverallBitRate": "9333333",
+    "FrameRate": "29.970",
+    "FrameCount": "161835",
+    "IsStreamable": "Yes",
+    "Encoded_Application": "Lavf61.7.103",
+    "Encoded_Library": "Lavf61.7.103",
+    "Comment": "{\"part\":\"1\",\"file_id\":\"1abc00010\"}",
+    "extra": {
+     "ErrorDetectionType": "Per level 1"
+    }
+   },
+   {
+    "@type": "Video",
+    "StreamOrder": "0",
+    "ID": "1",
+    "UniqueID": "2300000000000000003",
+    "Format": "VP9",
+    "Format_Profile": "0",
+    "CodecID": "V_VP9",
+    "Duration": "5399.900000000",
+    "Width": "3840",
+    "Height": "2160",
+    "Sampled_Width": "3840",
+    "Sampled_Height": "2160",
+    "PixelAspectRatio": "1.000",
+    "DisplayAspectRatio": "1.778",
+    "FrameRate_Mode": "CFR",
+    "FrameRate": "29.970",
+    "FrameRate_Num": "29970",
+    "FrameRate_Den": "1000",
+    "FrameCount": "161835",
+    "ColorSpace": "YUV",
+    "ChromaSubsampling": "4:2:0",
+    "BitDepth": "8",
+    "Delay": "0.000",
+    "Delay_Source": "Container",
+    "Default": "Yes",
+    "Forced": "No",
+    "colour_description_present": "Yes",
+    "colour_description_present_Source": "Container",
+    "colour_range": "Limited",
+    "colour_range_Source": "Container / Stream",
+    "colour_primaries": "BT.709",
+    "colour_primaries_Source": "Container",
+    "transfer_characteristics": "BT.709",
+    "transfer_characteristics_Source": "Container",
+    "matrix_coefficients": "BT.709",
+    "matrix_coefficients_Source": "Container / Stream",
+    "extra": {
+     "VENDOR_ID": "[0][0][0][0]"
+    }
+   },
+   {
+    "@type": "Audio",
+    "StreamOrder": "1",
+    "ID": "2",
+    "UniqueID": "3300000000000000003",
+    "Format": "AAC",
+    "Format_AdditionalFeatures": "LC",
+    "CodecID": "A_AAC-2",
+    "Duration": "5400.000000000",
+    "Channels": "2",
+    "ChannelPositions": "Front: L R",
+    "ChannelLayout": "L R",
+    "SamplesPerFrame": "1024",
+    "SamplingRate": "48000",
+    "SamplingCount": "259200000",
+    "FrameRate": "46.875",
+    "Compression_Mode": "Lossy",
+    "Delay": "0.000",
+    "Delay_Source": "Container",
+    "Video_Delay": "0.000",
+    "Default": "Yes",
+    "Forced": "No",
+    "extra": {
+     "VENDOR_ID": "[0][0][0][0]"
+    }
+   }
+  ]
+ }
+}

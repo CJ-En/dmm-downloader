@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- Made up, shaped like a VR Channel video page as a subscriber gets it as Googlebot or from outside Japan (2026-11):
+     the page's script asks for the download list (ajax-panel, "download-vr"), but its qualities (vr_rate_pattern)
+     are left out, so the list comes back empty. In Japan, as a normal browser: vrchannel-subscriber-japan.html. -->
+<html lang="ja">
+<head><title>【VR】Sample video for tests - アダルトVRch - FANZA月額動画</title></head>
+<body>
+<div class="left-contents left-contents-withdraw">
+    <a class="withdraw-menu-link" href="/monthly/vr/-/withdraw/">VRch 解約</a>
+</div>
+<h1>【VR】Sample video for tests</h1>
+<!-- 入会・再生ボタン -->
+<div id="tab-contents">
+    <div class="tab-content active" data-tab-role="streaming">
+        <div class="streaming-block"><div class="bx-downloadPlayer">
+            <p class="tx-downloadPlayer-sub">VR動画をパソコンでご視聴の際は、<br>Windowsで専用のプレイヤーをダウンロードする必要があります。</p>
+        </div></div>
+    </div>
+    <div class="tab-content" data-tab-role="download">
+        <div class="download-block"><div class="bx-downloadPlayer is-vr">
+            <p class="tx-downloadPlayer-sub">VR動画をパソコンでご視聴の際は、<br>Windowsで専用のプレイヤーをダウンロードする必要があります。</p>
+        </div></div>
+    </div>
+</div>
+<dl>
+    <dt class="content-detail__title">配信開始日</dt>
+    <dd><ul><li class="content-detail__row"><span class="content-detail__text">2024/06/14</span></li></ul></dd>
+    <dt class="content-detail__title">配信品番</dt>
+    <dd><ul><li class="content-detail__row"><span class="content-detail__text">abcd00123</span></li></ul></dd>
+</dl>
+<script type="text/javascript">
+    jQuery(document).ready(function(){
+    var old_d_rate_view = "";
+    var vr_rate_pattern = null;
+    $.ajax({
+        url     : "/monthly/vr/-/detail/ajax-panel/=/cid=abcd00123/",
+        type    : "POST",
+        data    : {
+            "type" : "download-vr",
+            "vr_rate_pattern" : vr_rate_pattern,
+        },
+        success : function(data) {
+            old_d_rate_view = data;
+        },
+        cache   : false,
+        timeout : 10000
+    });
+});
+</script>
+</body>
+</html>

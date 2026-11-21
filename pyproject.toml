@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dmm-downloader"
+dynamic = ["version"]
+description = "Download DMM videos you have access to (Premium, VR Channel or your library) and decrypt them with jav-it."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["requests>=2.31", "beautifulsoup4>=4.12", "keyring>=24"]
+
+[project.scripts]
+dmm-downloader = "dmm_downloader.cli:main"
+
+[tool.setuptools]
+packages = ["dmm_downloader", "dmm_downloader.merging"]
+
+[tool.setuptools.package-data]
+dmm_downloader = ["web/*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "dmm_downloader.__version__" }

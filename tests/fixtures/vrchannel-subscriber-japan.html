@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- Made up, shaped like a VR Channel video page as a subscriber sees it in Japan with a normal browser (2026-11): the
+     qualities are in the page (vr_rate_pattern) and in the quality menu; the download list is filled by the script. -->
+<html lang="ja">
+<head><title>【VR】Sample video for tests - アダルトVRch - FANZA月額動画</title></head>
+<body>
+<div class="left-contents left-contents-withdraw">
+    <a class="withdraw-menu-link" href="/monthly/vr/-/withdraw/">VRch 解約</a>
+</div>
+<h1>【VR】Sample video for tests</h1>
+<div class="tab-content" data-tab-role="download">
+<div class="download-block">
+    <div class="old-dl-player-wrap">
+        <div class="wrap-player wrap-select">
+            <select id="download_bitrate" class="js-oldDownloadBitrate">
+                <option value="uhq" selected>UHQ</option>
+                <option value="hq" >HQ</option>
+                <option value="6000" >中画質</option>
+            </select>
+        </div>
+        <div class="wrap-btns">
+            <div id="download_panel" class="section item-view js-oldDownloadPanel"></div>
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    jQuery(document).ready(function(){
+    var old_d_rate_view = "";
+    var vr_rate_pattern = {"uhq":{"product_id":"abcd00123dl6","shop_name":"vr","shop_full_name":"shop_month_vr","quality":"uhq","parts":3,"file_size":12000},"hq":{"product_id":"abcd00123dl6","shop_name":"vr","shop_full_name":"shop_month_vr","quality":"hq","parts":3,"file_size":6400},"6000":{"product_id":"abcd00123dl6","shop_name":"vr","shop_full_name":"shop_month_vr","quality":"6000","parts":3,"file_size":3200}};
+    $.ajax({
+        url     : "/monthly/vr/-/detail/ajax-panel/=/cid=abcd00123/",
+        type    : "POST",
+        data    : {
+            "type" : "download-vr",
+            "vr_rate_pattern" : vr_rate_pattern,
+        },
+        success : function(data) {
+            old_d_rate_view = data;
+        },
+        cache   : false,
+        timeout : 10000
+    });
+});
+</script>
+</body>
+</html>

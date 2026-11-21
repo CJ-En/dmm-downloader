@@ -1,0 +1,66 @@
+<ul id="download_rate_uhq" class="js-oldDownloadRate_uhq" style="display:none">
+    <li data-part="1" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=uhq/part=1"  name="dlmanager" >1</a>
+        </span>
+    </li>
+    <li data-part="2" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=uhq/part=2"  name="dlmanager" >2</a>
+        </span>
+    </li>
+    <li data-part="3" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=uhq/part=3"  name="dlmanager" >3</a>
+        </span>
+    </li>
+</ul>
+<ul id="download_rate_hq" class="js-oldDownloadRate_hq" style="display:none">
+    <li data-part="1" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=hq/part=1"  name="dlmanager" >1</a>
+        </span>
+    </li>
+    <li data-part="2" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=hq/part=2"  name="dlmanager" >2</a>
+        </span>
+    </li>
+    <li data-part="3" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=hq/part=3"  name="dlmanager" >3</a>
+        </span>
+    </li>
+</ul>
+<ul id="download_rate_6000" class="js-oldDownloadRate_6000" style="display:none">
+    <li data-part="1" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=6000/part=1"  name="dlmanager" >1</a>
+        </span>
+    </li>
+    <li data-part="2" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=6000/part=2"  name="dlmanager" >2</a>
+        </span>
+    </li>
+    <li data-part="3" onclick="clickDownloadWithTracking(event);">
+        <span class="part">
+            <a href="/monthly/vr/-/proxy/=/product_id=abcd00123dl6/transfer_type=download/rate=6000/part=3"  name="dlmanager" >3</a>
+        </span>
+    </li>
+</ul>
+<!-- Made up, shaped like the VR Channel's download list (the answer to ajax-panel, "download-vr", 2026-11): one list
+     per quality, one link per part, and the data the page's tracking reads. -->
+<script>
+function getFormattedDate() {
+    const d = new Date();
+    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+}
+
+const data = {"uhq":{"product_id":"abcd00123dl6","shop":"vr","shop_full_name":"shop_month_vr","quality":"uhq","parts":"3","file_size":"12000"},"hq":{"product_id":"abcd00123dl6","shop":"vr","shop_full_name":"shop_month_vr","quality":"hq","parts":"3","file_size":"6400"},"6000":{"product_id":"abcd00123dl6","shop":"vr","shop_full_name":"shop_month_vr","quality":"6000","parts":"3","file_size":"3200"}};
+
+function clickDownloadWithTracking(e) {
+    const part = e.currentTarget.getAttribute('data-part');
+    sendGAEvent({event: 'download_start', via_view_rank: part});
+}
+</script>

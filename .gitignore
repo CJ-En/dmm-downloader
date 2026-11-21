@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.egg-info/
+.venv/
+downloads/
+
+# jav-it and its modules come from jav-it's developer: never in git
+jav-it*
+*.MOD
+
+# Words a build must never contain (packaging/windows/check_dist.py): each builder keeps their own
+packaging/windows/refused-words.txt

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMM Downloader</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap bar-top">
+    <div class="brand"><svg class="mark" viewBox="0 0 16 16" aria-hidden="true"><path class="tile" d="M2 0L14 0A2 2 0 0 1 16 2L16 14A2 2 0 0 1 14 16L2 16A2 2 0 0 1 0 14L0 2A2 2 0 0 1 2 0Z"/><path class="ink" d="M7 2.5L9 2.5L9 7.5L7 7.5ZM3.75 7L12.25 7L8 11.25ZM2.5 10L4.25 10L4.25 12L11.75 12L11.75 10L13.5 10L13.5 13.75L2.5 13.75Z"/></svg><span class="brand-name">DMM <b>Downloader</b></span> <small id="version"></small></div>
+    <div class="status">
+      <span class="dot off" id="dmmStatus">Starting…</span>
+      <span class="dot off" id="javitStatus"></span>
+      <span class="dot off" id="toolStatus"></span>
+      <span class="dot off" id="fetchStatus"></span>
+      <span class="dot off" id="jpStatus"></span>
+      <button type="button" class="iconbtn" id="themeBtn" title="Dark or light" aria-label="Dark or light"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 1.5v11a5.5 5.5 0 0 1 0-11Z"/></svg></button>
+    </div>
+  </div>
+  <nav class="wrap tabs" role="tablist">
+    <button type="button" role="tab" aria-selected="true" data-tab="download">Download</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="library">My library<span class="n" id="libCount"></span></button>
+    <button type="button" role="tab" aria-selected="false" data-tab="settings">Settings</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="log">Log</button>
+  </nav>
+</header>
+
+<div class="toast" id="toast" role="alert" hidden></div>
+
+<main class="wrap">
+  <!-- DOWNLOAD -->
+  <section id="tab-download">
+    <div class="grid">
+      <aside class="panel">
+        <h2>Download options</h2>
+        <div class="body">
+          <div class="field"><span>Download from</span>
+            <div class="radios">
+              <label class="check"><input type="radio" name="src" id="src-auto" value="auto"><span>Premium, VR Channel, then my library <small>the default</small></span></label>
+              <label class="check"><input type="radio" name="src" id="src-premium" value="premium"><span>Premium only</span></label>
+              <label class="check"><input type="radio" name="src" id="src-vrchannel" value="vrchannel"><span>VR Channel only <small>VR videos in your monthly VR plan; its downloads need Japan (Settings)</small></span></label>
+              <label class="check"><input type="radio" name="src" id="src-library" value="library"><span>My library only <small>videos I bought</small></span></label>
+            </div>
+          </div>
+          <div class="field"><span>Quality</span>
+            <div class="radios">
+              <label class="check"><input type="radio" name="q" id="q-best" value="best"><span>Best available <small>4K first, VP9 before H.264; VR: 8k first</small></span></label>
+              <label class="check"><input type="radio" name="q" id="q-pick" value="pick"><span>I pick it for each video <small>each row opens with a quality menu; choose before starting</small></span></label>
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" id="opt-merge"><span>Join parts into one file <small>2D H.264 parts, with a chapter per part; VP9 and VR parts always stay separate</small></span></label>
+          <label class="check"><input type="checkbox" id="opt-keep"><span>Keep the encrypted downloads <small>.dcv (2D) and .wsdcf (VR) files, next to the result</small></span></label>
+          <label class="check"><input type="checkbox" id="opt-again"><span>Download again videos already saved</span></label>
+          <div class="field"><span>Save videos in</span>
+            <div class="inline"><input type="text" id="opt-out" class="mono" spellcheck="false"><button type="button" class="btn small" data-browse="folder">Browse…</button></div>
+          </div>
+          <div class="note vr" id="vrNote">VR videos (from the VR Channel or your library) are decrypted with jav-it when VR.MOD sits next to it; without it they are saved encrypted (<span class="mono">.wsdcf</span>), as DMM sends them.</div>
+        </div>
+      </aside>
+
+      <div class="panel">
+        <div class="add">
+          <label class="field" for="addIds"><span>Content ids or DMM links, one or more per line</span>
+            <textarea id="addIds" spellcheck="false" placeholder="abc00123&#10;https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=abc00123/"></textarea></label>
+          <div class="btns">
+            <button type="button" class="btn" id="addBtn">Add</button>
+            <button type="button" class="btn" data-browse="txt">Import a list…</button>
+            <button type="button" class="btn" id="fromLib">From my library</button>
+          </div>
+        </div>
+        <div class="qhead">
+          <div class="counts" id="counts"></div>
+          <div class="qbtns">
+            <button type="button" class="btn small" id="clearBtn">Clear finished</button>
+            <button type="button" class="btn small" id="stopBtn" hidden>Stop after these</button>
+            <button type="button" class="btn primary" id="startBtn">Start</button>
+          </div>
+        </div>
+        <div id="queue"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section id="tab-library" hidden>
+    <div class="panel top-gap">
+      <div class="libhead">
+        <span class="seg" id="libFilter">
+          <button type="button" data-f="all" aria-pressed="true">All</button>
+          <button type="button" data-f="2d" aria-pressed="false">2D</button>
+          <button type="button" data-f="vr" aria-pressed="false">VR</button>
+          <button type="button" data-f="new" aria-pressed="false">Not saved yet</button>
+        </span>
+        <input type="text" id="libSearch" placeholder="Find a content id or title" aria-label="Find a content id or title" spellcheck="false">
+        <button type="button" class="btn" id="libRefresh">Read again from DMM</button>
+        <button type="button" class="btn primary" id="libAdd" disabled>Add selected to the queue</button>
+      </div>
+      <div class="libsum" id="libSum"></div>
+      <div class="tablewrap">
+        <table class="lib">
+          <thead><tr><th><input type="checkbox" id="libAll" aria-label="Select all shown"></th><th>Content id</th><th>Title</th><th>Kind</th><th>Bought</th><th>DMM offers</th><th>In your folder</th></tr></thead>
+          <tbody id="libRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" hidden>
+    <div class="cols">
+      <div class="panel">
+        <h2>DMM account</h2>
+        <div class="body">
+          <div class="note" id="dmmState"></div>
+          <div class="field"><span>Email</span><input type="text" id="set-mail" autocomplete="username" placeholder="the email of your DMM account" spellcheck="false"></div>
+          <div class="field"><span>Password</span><input type="password" id="set-pass" autocomplete="current-password"></div>
+          <div class="inline wrapline">
+            <button type="button" class="btn primary" id="loginBtn">Log in and save</button>
+            <button type="button" class="btn" id="logoutBtn">Log out</button>
+          </div>
+          <div class="note" id="storeNote"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Downloads</h2>
+        <div class="body">
+          <div class="row2 even">
+            <div class="field"><span>Videos at the same time</span><input type="number" id="set-parallel" min="1" max="8"></div>
+            <div class="field"><span>Tries per download</span><input type="number" id="set-retries" min="1" max="20"></div>
+          </div>
+          <div class="note">VR videos always download one at a time (DMM allows only one), and jav-it decrypts one part at a time.</div>
+          <div class="field"><span>Download program for the files <small>(VPN split tunnelling)</small></span>
+            <div class="state" id="fetchState"></div>
+            <input type="text" class="mono" id="set-fetch" spellcheck="false" placeholder="empty = next to this program · off = never">
+          </div>
+          <div class="note">DMM refuses its download links from VPN addresses, but its file servers don't (and can be much faster through a VPN). With <span class="mono" id="fetchName">DMM-Fetch.exe</span>, only the files themselves are downloaded by that separate program. In your VPN's split tunnelling, let only that program use the VPN (or keep DMM-Downloader off it): logging in, your library and the download links keep using your normal connection.</div>
+          <div class="field"><span>Japan route for the VR Channel <small>(DMM gives the VR Channel's downloads only in Japan)</small></span>
+            <div class="state" id="jpState"></div>
+            <div class="inline"><input type="text" class="mono" id="set-jp" spellcheck="false" placeholder="empty = this program's own connection (a VPN app on Japan) · or a proxy, e.g. http://127.0.0.1:25345"><button type="button" class="btn small" id="jpCheck">Check</button></div>
+          </div>
+          <div class="note">Two ways: connect your VPN app to a server in Japan (the whole computer, or with DMM-Downloader in its split tunnelling) and leave this empty; or enter a proxy in Japan, e.g. wireproxy with a WireGuard config from a VPN with servers in Japan (see the README), so nothing else changes. Only the VR Channel's qualities, its download list and its download links use this route, as a normal Windows browser. The files themselves use your normal connection (or DMM-Fetch), and the proxy only when DMM's file server refuses them. Logging in, your library and Premium never use the proxy. “Check” asks DMM whether the route counts as Japan.</div>
+          <button type="button" class="btn start" id="dlSave">Save</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>jav-it</h2>
+        <div class="body">
+          <div class="tools" id="javitTools"></div>
+          <div class="field"><span>Email jav-it asks for to check your Patreon membership</span><input type="text" id="set-patreon" placeholder="empty = your DMM email" spellcheck="false"></div>
+          <div class="field"><span>jav-it program <small>(empty = next to this program, then PATH)</small></span><input type="text" class="mono" id="set-javit" spellcheck="false"></div>
+          <div class="note">jav-it, DECRYPT.MOD (2D videos) and VR.MOD (VR videos) come from jav-it's developer (Patreon); put them next to this program. Without VR.MOD, VR videos are saved encrypted (<span class="mono">.wsdcf</span>).</div>
+          <button type="button" class="btn start" id="javitSave">Save</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Programs</h2>
+        <div class="body">
+          <div class="tools" id="progTools"></div>
+          <div class="note">Not included with the tool. Download them yourself: <a href="https://mediaarea.net/en/MediaInfo/Download" target="_blank" rel="noopener noreferrer">MediaInfo (the CLI version)</a> and FFmpeg (<a href="https://www.gyan.dev/ffmpeg/builds/" target="_blank" rel="noopener noreferrer">Windows builds</a> · <a href="https://ffmpeg.org/download.html" target="_blank" rel="noopener noreferrer">all systems</a>). Put them next to this program or on PATH; FFmpeg is only needed to join parts.</div>
+          <details>
+            <summary>Use other copies</summary>
+            <div class="stack">
+              <div class="field"><span>MediaInfo</span><input type="text" class="mono" id="set-mediainfo" spellcheck="false"></div>
+              <div class="field"><span>FFmpeg</span><input type="text" class="mono" id="set-ffmpeg" spellcheck="false"></div>
+              <div class="field"><span>ffprobe</span><input type="text" class="mono" id="set-ffprobe" spellcheck="false"></div>
+              <button type="button" class="btn start" id="progSave">Save</button>
+            </div>
+          </details>
+          <button type="button" class="btn start" id="doctorBtn">Check setup again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section id="tab-log" hidden>
+    <div class="log" id="log" aria-live="polite"></div>
+  </section>
+
+  <div class="foot">
+    <span id="footAddr">Runs on your computer only; closing the window stops the downloader.</span>
+    <span>Settings: <span class="mono" id="footConfig"></span> · Log (without passwords, cookies or download links): <span class="mono" id="footLog"></span></span>
+    <button type="button" class="btn small" id="quitBtn">Quit</button>
+  </div>
+  <div class="note goodbye" id="goodbye" hidden>The downloader doesn't answer (closed?). Start it again to continue; finished parts are reused.</div>
+</main>
+
+<div class="scrim" id="browse" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="browseTitle">
+    <header id="browseTitle">Choose a folder</header>
+    <div class="crumb"><button type="button" class="btn small" id="browseUp" aria-label="Up one folder">Up</button><span class="mono" id="browsePath"></span></div>
+    <div class="list" id="browseList"></div>
+    <footer>
+      <span class="note" id="browseHint"></span>
+      <button type="button" class="btn" id="browseCancel">Cancel</button>
+      <button type="button" class="btn primary" id="browseOk">Use this folder</button>
+    </footer>
+  </div>
+</div>
+</body>
+</html>
